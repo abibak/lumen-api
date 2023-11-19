@@ -1,0 +1,42 @@
+version: "3.7"
+
+services:
+  nginx:
+    build:
+      context: .
+      dockerfile: /nginx.Dockerfile
+    ports:
+      - "8080:80"
+    links:
+      - php
+    volumes:
+      - ../project:/var/www/project
+    depends_on:
+      - php
+
+  php:
+    container_name: deploy-php
+    build:
+      context: .
+      dockerfile: /php.Dockerfile
+    volumes:
+      - ../project:/var/www/project
+
+  composer:
+    build:
+      context: .
+      dockerfile: /composer.Dockerfile
+    volumes:
+      - ../project:/var/www/project
+
+  pgsql:
+    image: postgres:14.0
+    env_file:
+      - ../project/.env
+    environment:
+      - POSTGRES_HOST=localhost
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+    ports:
+      - "5432:5432"
